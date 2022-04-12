@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/black"
+    android:padding="10dp"
+    android:id="@+id/frag">
+
+    <TextView
+        android:id="@+id/fragAppName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="App Name"
+        tools:layout_editor_absoluteX="203dp"
+        tools:layout_editor_absoluteY="146dp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/josefinsans_regular"
+        android:textSize="20dp"
+        android:padding="20dp"/>
+
+    <Button
+        android:id="@+id/addToHome"
+        android:text="Add To Home Screen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:textAllCaps="false"
+        android:textColor="@color/mainAccentColor"/>
+
+    <Button
+        android:id="@+id/appInfo"
+        android:text="App Info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:textAllCaps="false"
+        android:textColor="@color/mainAccentColor"/>
+
+    <Button
+        android:id="@+id/uninstall"
+        android:text="Uninstall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:textAllCaps="false"
+        android:textColor="@color/mainAccentColor" />
+
+</LinearLayout>
