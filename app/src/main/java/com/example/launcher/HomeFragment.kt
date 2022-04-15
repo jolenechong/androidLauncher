@@ -12,6 +12,7 @@ import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import com.example.launcher.database.AppViewerApplication
+import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -19,7 +20,6 @@ import kotlin.collections.ArrayList
 
 class HomeFragment : Fragment() {
 
-    private lateinit var appIDs: ArrayList<String>
     private lateinit var apps: MutableList<App>
     private lateinit var listView: ListView
     private lateinit var noteView: EditText
@@ -83,23 +83,33 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         // refresh list on resume
-        Log.i("BOOP","$appIDs")
         refreshList()
     }
 
     fun refreshList(){
-        // get list of selected package names
-        appIDs = AppViewerApplication().retrieveAll(requireContext())
-        apps = getSelectedApps()
-        listView.adapter = AppsAdapter(requireActivity(), apps)
+        var listJob = GlobalScope.async(Dispatchers.Default) {
+            Log.d("BOOP","I'm working in thread ${Thread.currentThread().name}")
+
+            var appList = getSelectedApps()
+
+            appList
+
+        }
+
+        GlobalScope.launch(Dispatchers.Main) {
+            Log.d("BOOP","I'm working in thread ${Thread.currentThread().name}")
+            apps = listJob.await()
+            listView.adapter = AppsAdapter(requireActivity(), apps)
+
+        }
     }
 
     fun getSelectedApps() : MutableList<App> {
         // get list of all the apps installed
         val pm: PackageManager = activity?.packageManager!!
-
         val installedApps: MutableList<App> = ArrayList()
 
+        var appIDs = AppViewerApplication().retrieveAll(requireContext())
         for (app in appIDs)
         {
             try {

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,10 @@ import android.widget.*
 import android.widget.AdapterView.OnItemLongClickListener
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -44,8 +49,7 @@ class AppDrawerFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         // refresh list
-        apps = getallapps()
-        refreshList(apps)
+        refreshAllList()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -56,15 +60,7 @@ class AppDrawerFragment : Fragment() {
         imgr = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         searchField = view.findViewById(R.id.search)
         pm = activity?.packageManager!!
-
-        // handle search
-        searchField.addTextChangedListener {
-            val match =
-                apps.filter {
-                    it.name.lowercase(Locale.getDefault()).contains(searchField.text.toString().lowercase(Locale.getDefault()))
-                }
-            refreshList(match.toMutableList())
-        }
+        refreshAllList()
 
         // open app on click with package manager
         listView.isClickable = true
@@ -114,6 +110,32 @@ class AppDrawerFragment : Fragment() {
         })
     }
 
+    fun refreshAllList(){
+        var listJob = GlobalScope.async(Dispatchers.Default) {
+            Log.d("BOOP","I'm working in thread ${Thread.currentThread().name}")
+
+            var appList = getallapps()
+
+            appList
+
+        }
+
+        GlobalScope.launch(Dispatchers.Main) {
+            Log.d("BOOP","I'm working in thread ${Thread.currentThread().name}")
+            apps = listJob.await()
+            listView.adapter = AppsAdapter(requireActivity(), apps)
+
+            // handle search only when apps has been initialised
+            searchField.addTextChangedListener {
+                val match =
+                    apps.filter {
+                        it.name.lowercase(Locale.getDefault()).contains(searchField.text.toString().lowercase(Locale.getDefault()))
+                    }
+                refreshList(match.toMutableList())
+            }
+        }
+    }
+
     fun refreshList(appsToShow: MutableList<App>)
     {
         filteredApps = appsToShow
@@ -143,5 +165,4 @@ class AppDrawerFragment : Fragment() {
 
         return installedApps
     }
-
 }
